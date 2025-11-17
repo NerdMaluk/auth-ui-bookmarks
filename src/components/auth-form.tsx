@@ -37,10 +37,10 @@ const AuthForm = ({ mode }: AuthFormProps) => {
       setLoading(true);
 
       if (mode === "signup") {
-        await axios.post("http://localhost:3333/auth/signup", payload);
+        await axios.post("http://localhost:3000/auth/signup", payload);
         alert("User created successfully!");
       } else {
-        const response = await axios.post("http://localhost:3333/auth/signin", payload);
+        const response = await axios.post("http://localhost:3000/auth/signin", payload);
         const { access_token } = response.data;
 
         dispatch(setToken(access_token));

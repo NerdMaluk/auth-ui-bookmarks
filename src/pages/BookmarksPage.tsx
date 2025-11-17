@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
-import api from "../api/axiosInstance"; // instância axios com token
+import api from "../api/axiosInstance";
 import { useDispatch } from "react-redux";
 import { clearToken } from "../slices/authSlice";
 import { useNavigate } from "react-router-dom";
+import BookmarkForm from "../components/BookmarkForm";
+import "../style.css";
 
 interface Bookmark {
   id: number;
   title: string;
-  url: string;
+  link: string;
+  description?: string;
 }
 
 const BookmarksPage = () => {
@@ -18,22 +21,31 @@ const BookmarksPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchBookmarks = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get("/bookmarks");
-        setBookmarks(response.data);
-      } catch (err: any) {
-        console.error(err);
-        setError(err.response?.data?.message || "Failed to fetch bookmarks");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchBookmarks = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get("/bookmarks");
+      setBookmarks(response.data);
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to fetch bookmarks");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchBookmarks();
   }, []);
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this bookmark?")) return;
+    try {
+      await api.delete(`/bookmarks/${id}`);
+      fetchBookmarks();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleLogout = () => {
     dispatch(clearToken());
@@ -41,24 +53,53 @@ const BookmarksPage = () => {
     navigate("/");
   };
 
-  if (loading) return <p>Loading bookmarks...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
-
   return (
-    <div style={{ padding: "20px" }}>
-      <button onClick={handleLogout} style={{ padding: "10px", marginBottom: "20px" }}>
+    <div className="bookmarks-container">
+      <button className="logout-button" onClick={handleLogout}>
         Logout
       </button>
+
       <h2>Bookmarks</h2>
-      <ul>
-        {bookmarks.map((bm) => (
-          <li key={bm.id}>
-            <a href={bm.url} target="_blank" rel="noopener noreferrer">
-              {bm.title}
-            </a>
-          </li>
-        ))}
-      </ul>
+
+      {/* Form para criar novos bookmarks */}
+      <BookmarkForm onSuccess={fetchBookmarks} />
+
+      {loading ? (
+        <p>Loading bookmarks...</p>
+      ) : error ? (
+        <p style={{ color: "red" }}>{error}</p>
+      ) : bookmarks.length === 0 ? (
+        <p>No bookmarks found</p>
+      ) : (
+        <ul>
+          {bookmarks.map((bm) => (
+            <li key={bm.id} className="bookmark-item">
+              <div>
+                <strong>{bm.title}</strong>
+                <br />
+                <br />
+                <a href={bm.link} target="_blank" rel="noopener noreferrer">
+                  {bm.link}
+                  <br />
+                </a>
+                <br />
+                {bm.description && <p>{bm.description}</p>}
+                
+              </div>
+              <br />
+              <div className="bookmark-buttons">
+                {/* Form para editar o bookmark */}
+                <BookmarkForm
+                  onSuccess={fetchBookmarks}
+                  initialData={{ title: bm.title, link: bm.link, description: bm.description }}
+                  bookmarkId={bm.id}
+                />
+                <button onClick={() => handleDelete(bm.id)}>Delete</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
