@@ -55,12 +55,17 @@ const BookmarksPage = () => {
 
   return (
     <div className="bookmarks-container">
-      <button className="logout-button" onClick={handleLogout}>
+
+      <div className="header">
+        <h2>My Bookmarks</h2>  
+        <button className="logout-button" onClick={handleLogout}>
         Logout
       </button>
 
-      <h2>Bookmarks</h2>
-
+      
+      </div>
+      
+      <h4>Add a new bookmark:</h4>
       {/* Form para criar novos bookmarks */}
       <BookmarkForm onSuccess={fetchBookmarks} />
 
@@ -75,14 +80,17 @@ const BookmarksPage = () => {
           {bookmarks.map((bm) => (
             <li key={bm.id} className="bookmark-item">
               <div>
+                <h6>Title:</h6>
                 <strong>{bm.title}</strong>
                 <br />
                 <br />
+               <h6>Link:</h6>
                 <a href={bm.link} target="_blank" rel="noopener noreferrer">
                   {bm.link}
                   <br />
                 </a>
                 <br />
+                <h6>Description:</h6>
                 {bm.description && <p>{bm.description}</p>}
                 
               </div>

@@ -13,7 +13,12 @@ body {
   justify-content: center;
   align-items: center;
 }
-
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
 /* Caixa de login/signup */
 .auth-box {
   width: 400px;
